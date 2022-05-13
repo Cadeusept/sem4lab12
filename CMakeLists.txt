@@ -21,7 +21,7 @@ HunterGate(
 )
 
 # TODO: rename project and delete this comment
-project(template VERSION 0.1.0)
+project(lab_12_refactoring VERSION 0.1.0)
 string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
 string(APPEND CMAKE_CXX_FLAGS " -Wno-unused-command-line-argument")
 string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
@@ -36,7 +36,7 @@ find_package(Boost COMPONENTS program_options)
 
 add_library(${PROJECT_NAME} STATIC
   # enum your files and delete this comment
-        ${CMAKE_CURRENT_SOURCE_DIR}/sources/refactorer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/sources/example.cpp
 )
 
 add_executable(refactorer
