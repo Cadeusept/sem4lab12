@@ -2,10 +2,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <refactorer.hpp>
 #include <set>
 #include <sstream>
-
-#include <example.hpp>
 
 void Log::Write(std::string_view message) const {
   *out_ << message << std::endl;
