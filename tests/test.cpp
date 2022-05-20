@@ -10,58 +10,52 @@
 
 using ::testing::AtLeast;
 
-class MockLog : public Log {
+class MockStatSender : public StatSender {
  public:
-  MOCK_METHOD(void, Write, (std::string_view message), (const));
-  MOCK_METHOD(void, WriteDebug, (std::string_view message), (const));
-  //MOCK_METHOD(Log, (size_t level), (explicit));
+  MOCK_METHOD2(AsyncSend, void(const std::vector<Item>&, std::string_view));
 };
 
-class MockUsedMemory : public UsedMemory {
- public:
-  MOCK_METHOD(void, OnDataLoad,
-              (const std::vector<Item>& old_items,
-               const std::vector<Item>& new_items));
-
-  MOCK_METHOD(void, OnRawDataLoad,
-              (const std::vector<std::string>& old_items,
-               const std::vector<std::string>& new_items));
-
-  MOCK_METHOD(size_t, used, (), (const));
-};
-
-
-TEST(Example, EmptyTest) {
-    EXPECT_NO_THROW(Log{1});
+TEST(PageContainer, InvalidFile_1){
+  PageContainer page{};
+  std::ifstream in;
+  try{
+    page.RawLoad(in);
+  } catch (std::exception& e) {
+    EXPECT_TRUE(std::strcmp(e.what(), "file doesn`t open"));
+  }
 }
 
-/**TEST(DISABLED_Snapshot, Speen) {
-    for (;;) std::this_thread::yield();
-}**/
-
-TEST(PageContainer, Bad_file) {
-  MockLog log(2);
-  MockUsedMemory* memory_counter;
-
-  PageContainer test_PageContainer(log, memory_counter);
-    std::ifstream in;
-    try{
-      test_PageContainer.RawLoad(in);
-    } catch (std::exception& e) {
-      EXPECT_TRUE(std::strcmp(e.what(), "file don`t open"));
-    }
+TEST(PageContainer, InvalidFile_2){
+  PageContainer page{};
+  std::ifstream in("");
+  try{
+    page.RawLoad(in);
+  } catch (std::exception& e) {
+    EXPECT_TRUE(std::strcmp(e.what(), "file is empty"));
+  }
 }
 
-TEST(PageContainer, modification) {
-    MockLog log(2);
-    MockUsedMemory* memory_counter;
-
-    PageContainer test_PageContainer(log, memory_counter);
-
-    std::stringstream ss;
-    ss << "aboba";
-    PageContainer tmp(log, memory_counter);
-    EXPECT_ANY_THROW(test_PageContainer.Load(ss, 2));
-
-    EXPECT_EQ(tmp, test_PageContainer);
+TEST(PageContainer, InvalidFile_3){
+  PageContainer page{};
+  std::ifstream in("ABOBA");
+  EXPECT_THROW(page.RawLoad(in),std::runtime_error);
 }
+
+TEST(PageContainer, BadFileFormat){
+  PageContainer page{};
+  std::stringstream file;
+  file << "0 name 10\n1 name 3\n2 name 4\n3 name 3\n4 name 10\n5 name 7\n"
+          "6 name 4\n7 name 4\n8 name 5\n9 name 18\n10 name  12\n";
+  page.RawLoad(file);
+  EXPECT_EQ(10, page.GetRawDataSize());
+}
+
+TEST(PageContainer, RightFileFormat){
+  PageContainer page{};
+  std::stringstream file;
+  file << "0 name 10\n1 name 3\n2 name 4\n3 name 3\n4 name 10\n5 name 7\n"
+          "6 name 4\n7 name 4\n8 name 5\n9 name 18\n10 name 12\n";
+  page.RawLoad(file);
+  EXPECT_EQ(11, page.GetRawDataSize());
+}
+

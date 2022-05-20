@@ -132,7 +132,7 @@ void PageContainer::PrintTable() const {
 void PageContainer::RawLoad(std::istream& file) {
   std::vector<std::string> raw_data;
 
-  if (!file) throw std::runtime_error("file don`t open");
+  if (!file) throw std::runtime_error("file doesn`t open");
 
   if (file.peek() == EOF)  throw std::runtime_error("file is empty");
 
