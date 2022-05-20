@@ -56,7 +56,8 @@ if(BUILD_TESTS)
     # TODO: enum your files and delete this comment
           ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp
   )
-  target_link_libraries(tests ${PROJECT_NAME} GTest::gtest_main)
+  target_link_libraries(tests ${PROJECT_NAME} GTest::gtest_main
+                        GTest::gtest GTest::gmock_main)
   enable_testing()
   add_test(NAME unit_tests COMMAND tests)
 endif()

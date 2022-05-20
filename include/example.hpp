@@ -11,14 +11,21 @@
 
 class Log {
  public:
-  void Write(std::string_view message) const;
+  static Log& GetInstance();
 
-  void WriteDebug(std::string_view message) const;
+  void Setting(bool level);
 
-  explicit Log(size_t level);
+  void Write(const std::string_view& message) const;
+
+  void WriteDebug(const std::string_view& message) const;
 
  private:
-  size_t level_ = 0;
+  Log(): level_(false), out_(&std::cout){};
+
+  Log( const Log&) = delete;
+  Log& operator=( Log& ) = delete;
+
+  bool level_ = false;
   mutable std::ostream* out_;
 };
 
@@ -28,9 +35,12 @@ struct Item {
   float score = 0;
 };
 
+
+
+
+
 class UsedMemory {
  public:
-  explicit UsedMemory(const Log& log);
 
   void OnDataLoad(const std::vector<Item>& old_items,
                   const std::vector<Item>& new_items);
@@ -38,42 +48,88 @@ class UsedMemory {
   void OnRawDataLoad(const std::vector<std::string>& old_items,
                      const std::vector<std::string>& new_items);
 
-  size_t used() const;
+  [[nodiscard]] size_t Used() const;
 
  private:
-  const Log* log_;
   size_t used_ = 0;
 };
 
+
+
+
+
 class StatSender {
  public:
-  explicit StatSender(const Log& log);
+
   void OnLoaded(const std::vector<Item>& new_items);
 
   void Skip(const Item& item);
 
- private:
-  void AsyncSend(const std::vector<Item>& items, std::string_view path);
+  virtual ~StatSender() = default;
 
-  const Log* log_;
+ private:
+  virtual void AsyncSend(const std::vector<Item>& items, std::string_view path);
+
   std::ofstream fstr{"network", std::ios::binary};
 };
 
+
+
+
+
+class Histogram{
+ public:
+  static Histogram& GetInstance();
+
+  [[nodiscard]] int GetNumSkip() const;
+
+  [[nodiscard]] float GetAvg() const;
+
+  void SetAvg(const float& avg_);
+
+  void PlusNumSkip();
+
+  void NewLap();
+ private:
+  Histogram() = default;
+  Histogram( const Histogram&) = delete;
+  Histogram& operator=( Histogram& ) = delete;
+
+  int num_skip = 0;
+  float avg = 0;
+};
+
+
+
+
+constexpr size_t kMinLines = 10;
+
 class PageContainer {
  public:
-  void Load(std::istream& io, float threshold);
-  const Item& ByIndex(size_t i) const;
+  void RawLoad(std::istream& file);
 
-  const Item& ById(const std::string& id) const;
+  [[nodiscard]] const Item& ByIndex(const size_t& i) const;
 
-  void Reload(float threshold);
+  [[nodiscard]] const Item& ById(const std::string& id) const;
 
-  PageContainer(const Log& log, UsedMemory* memory_counter);
+  [[nodiscard]] size_t GetRawDataSize() const;
 
+  [[nodiscard]] size_t GetDataSize() const;
+
+  void DataLoad(const float& threshold);
+
+  static bool IsCorrect(std::string& line);
+
+  void PrintTable() const;
+
+  explicit PageContainer(UsedMemory* memory_counter = new UsedMemory(),
+                         StatSender* stat_sender = new StatSender())
+      : memory_counter_(memory_counter), stat_sender_(stat_sender){}
+
+  ~PageContainer();
  private:
-  const Log* log_;
   UsedMemory* memory_counter_;
-  StatSender stat_sender_;
+  StatSender* stat_sender_;
   std::vector<Item> data_;
   std::vector<std::string> raw_data_;
 };
