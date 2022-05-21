@@ -9,7 +9,7 @@
 #include <vector>
 #include <string_view>
 
-class Log {
+class Log { //singleton
  public:
   static Log& GetInstance();
 
@@ -39,7 +39,7 @@ struct Item {
 
 
 
-class UsedMemory {
+class UsedMemory { //observer of PageContainer
  public:
 
   void OnDataLoad(const std::vector<Item>& old_items,
@@ -58,7 +58,7 @@ class UsedMemory {
 
 
 
-class StatSender {
+class StatSender { //observer of PageContainer
  public:
 
   void OnLoaded(const std::vector<Item>& new_items);
@@ -67,7 +67,7 @@ class StatSender {
 
   virtual ~StatSender() = default;
 
- private:
+ private:  //made virtual
   virtual void AsyncSend(const std::vector<Item>& items, std::string_view path);
 
   std::ofstream fstr{"network", std::ios::binary};
@@ -77,7 +77,7 @@ class StatSender {
 
 
 
-class Histogram{
+class Histogram{ //observer of PageContainer
  public:
   static Histogram& GetInstance();
 
@@ -104,7 +104,7 @@ class Histogram{
 
 constexpr size_t kMinLines = 10;
 
-class PageContainer {
+class PageContainer { //observant
  public:
   void RawLoad(std::istream& file);
 
