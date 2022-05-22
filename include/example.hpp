@@ -22,7 +22,7 @@ class Log { //singleton
   void WriteDebug(const std::string_view& message) const;
 
  private:
-  Log(): level_(false), out_(&std::cout){};
+  Log(): level_(false), out_(&std::cout){}
 
   Log( const Log&) = delete;
   Log& operator=( Log& ) = delete;
@@ -43,7 +43,6 @@ struct Item {
 
 class UsedMemory { //observer of PageContainer
  public:
-
   void OnDataLoad(const std::vector<Item>& old_items,
                   const std::vector<Item>& new_items);
 
@@ -62,7 +61,6 @@ class UsedMemory { //observer of PageContainer
 
 class StatSender { //observer of PageContainer
  public:
-
   void OnLoaded(const std::vector<Item>& new_items);
 
   void Skip(const Item& item);
@@ -128,6 +126,7 @@ class PageContainer { //observant
       : memory_counter_(memory_counter), stat_sender_(stat_sender){}
 
   ~PageContainer();
+
  private:
   UsedMemory* memory_counter_;
   StatSender* stat_sender_;

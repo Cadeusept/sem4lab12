@@ -120,29 +120,29 @@ void PageContainer::PrintTable() const {
   std::string name_sep = "..................";
   std::string score_sep = "...........";
   size_t cntr = 0;
-  std::cout << (cntr % 2 == 0 ? "\\" : "/" ) << id_sep <<
-      (cntr % 2 == 0 ? "\\" : "/" ) << name_sep <<
-      (cntr % 2 == 0 ? "\\" : "/" ) << score_sep <<
-      (cntr % 2 == 0 ? "\\" : "/" ) << std::endl; //separator
+  std::cout << (cntr % 2 == 0 ? "\\" : "/") << id_sep <<
+      (cntr % 2 == 0 ? "\\" : "/") << name_sep <<
+      (cntr % 2 == 0 ? "\\" : "/") << score_sep <<
+      (cntr % 2 == 0 ? "\\" : "/") << std::endl; //separator
   cntr++;
   for (size_t i = 0; i < data_.size(); ++i) {
     const auto& item = ByIndex(i);
-    std::cout << (cntr % 2 == 0 ? "\\   " : "/   " ) << item.id << "\t " <<
-        (cntr % 2 == 0 ? "\\" : "/" ) << "\t\t" << std::setw(4) << item.name <<
-        "\t\t" << (cntr % 2 == 0 ? "\\" : "/" ) << "\t" << item.score
-        << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" ) << std::endl;
+    std::cout << (cntr % 2 == 0 ? "\\   " : "/   ") << item.id << "\t " <<
+        (cntr % 2 == 0 ? "\\" : "/") << "\t\t" << std::setw(4) << item.name <<
+        "\t\t" << (cntr % 2 == 0 ? "\\" : "/") << "\t" << item.score
+        << "\t\t" << (cntr % 2 == 0 ? "\\" : "/") << std::endl;
     cntr++;
     const auto& item2 = ById(std::to_string(i));
-    std::cout << (cntr % 2 == 0 ? "\\   " : "/   " ) << item2.id << "\t "
-        << (cntr % 2 == 0 ? "\\" : "/" ) << "\t\t" << std::setw(4) <<
-        item2.name << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" )
-        << "\t" << item2.score << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" )
+    std::cout << (cntr % 2 == 0 ? "\\   " : "/   ") << item2.id << "\t "
+        << (cntr % 2 == 0 ? "\\" : "/") << "\t\t" << std::setw(4) <<
+        item2.name << "\t\t" << (cntr % 2 == 0 ? "\\" : "/")
+        << "\t" << item2.score << "\t\t" << (cntr % 2 == 0 ? "\\" : "/")
         << std::endl;
     cntr++;
-    std::cout << (cntr % 2 == 0 ? "\\" : "/" ) << id_sep <<
-        (cntr % 2 == 0 ? "\\" : "/" ) << name_sep <<
-        (cntr % 2 == 0 ? "\\" : "/" ) << score_sep <<
-        (cntr % 2 == 0 ? "\\" : "/" ) << std::endl; //separator
+    std::cout << (cntr % 2 == 0 ? "\\" : "/") << id_sep <<
+        (cntr % 2 == 0 ? "\\" : "/") << name_sep <<
+        (cntr % 2 == 0 ? "\\" : "/") << score_sep <<
+        (cntr % 2 == 0 ? "\\" : "/") << std::endl; //separator
     cntr++;
   }
 }
