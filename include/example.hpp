@@ -9,6 +9,8 @@
 #include <vector>
 #include <string_view>
 
+constexpr size_t kMinLines = 10;
+
 class Log { //singleton
  public:
   static Log& GetInstance();
@@ -102,7 +104,6 @@ class Histogram{ //observer of PageContainer
 
 
 
-constexpr size_t kMinLines = 10;
 
 class PageContainer { //observant
  public:

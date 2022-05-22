@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <example.hpp>
+#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
-
 
 void Log::Write(const std::string_view& message) const {
   *out_ << "[info] " << message << std::endl;
@@ -115,17 +115,35 @@ const Item& PageContainer::ById(const std::string& id) const {
 }
 
 void PageContainer::PrintTable() const {
-  std::cout << "|\tid\t |\t\tname\t\t|\tscore\t|\n";
-  std::string separator = "_________________________________________\n";
-  std::cout << separator;
+  std::cout << "/\tid\t /\t\tname\t\t/\tscore\t/\n";
+  std::string id_sep = "........";
+  std::string name_sep = "..................";
+  std::string score_sep = "...........";
+  size_t cntr = 0;
+  std::cout << (cntr % 2 == 0 ? "\\" : "/" ) << id_sep <<
+      (cntr % 2 == 0 ? "\\" : "/" ) << name_sep <<
+      (cntr % 2 == 0 ? "\\" : "/" ) << score_sep <<
+      (cntr % 2 == 0 ? "\\" : "/" ) << std::endl; //separator
+  cntr++;
   for (size_t i = 0; i < data_.size(); ++i) {
     const auto& item = ByIndex(i);
-    std::cout << "|   " << item.id << "\t |\t\t" <<
-        item.name << "\t\t|\t" << item.score << "\t\t|" << std::endl;
+    std::cout << (cntr % 2 == 0 ? "\\   " : "/   " ) << item.id << "\t " <<
+        (cntr % 2 == 0 ? "\\" : "/" ) << "\t\t" << std::setw(4) << item.name <<
+        "\t\t" << (cntr % 2 == 0 ? "\\" : "/" ) << "\t" << item.score
+        << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" ) << std::endl;
+    cntr++;
     const auto& item2 = ById(std::to_string(i));
-    std::cout << "|   " << item2.id << "\t |\t\t" <<
-        item2.name << "\t\t|\t" << item2.score << "\t\t|" << std::endl;
-    std::cout << separator;
+    std::cout << (cntr % 2 == 0 ? "\\   " : "/   " ) << item2.id << "\t "
+        << (cntr % 2 == 0 ? "\\" : "/" ) << "\t\t" << std::setw(4) <<
+        item2.name << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" )
+        << "\t" << item2.score << "\t\t" << (cntr % 2 == 0 ? "\\" : "/" )
+        << std::endl;
+    cntr++;
+    std::cout << (cntr % 2 == 0 ? "\\" : "/" ) << id_sep <<
+        (cntr % 2 == 0 ? "\\" : "/" ) << name_sep <<
+        (cntr % 2 == 0 ? "\\" : "/" ) << score_sep <<
+        (cntr % 2 == 0 ? "\\" : "/" ) << std::endl; //separator
+    cntr++;
   }
 }
 
@@ -165,7 +183,7 @@ void PageContainer::DataLoad(const float& threshold) {
     stream >> item.id >> item.name >> item.score;
 
     if (auto&& [_, inserted] = ids.insert(item.id); !inserted) {
-      throw std::runtime_error("already seen");
+      throw std::runtime_error("duplicate");
     }
 
     if (item.score > threshold) {
@@ -178,7 +196,7 @@ void PageContainer::DataLoad(const float& threshold) {
     }
   }
   Histogram::GetInstance().SetAvg(sum/counter);
-  if (data.size() < kMinLines) {
+  if (data.size() < kMinLines - 1) {
     throw std::runtime_error("correct items less then const");
   }
 

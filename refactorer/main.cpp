@@ -1,33 +1,63 @@
 #include <example.hpp>
+#include <boost/program_options.hpp>
 #include <string>
 
+namespace po = boost::program_options;
+
 int main(int argc, char* argv[]) {
-  Log the_log(0);
-  UsedMemory used_memory(the_log);
+  po::options_description desc("Allowed options");
+  desc.add_options()
+      ("help", "produce help message")
+      ("log_level", po::value<std::string>(), "set log-level "
+                                            "<Release|Debug>, Debug by default")
+      ("source", po::value<std::string>()->default_value("data.txt"),
+               "Name of source file\n")
+      ("threshold", po::value<int>()->default_value(1),
+       "Enter threshold value\n");
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
 
-  std::string filename = "data.txt";
-  for (int i = 1; i < argc; ++i) {
-    if (std::string(argv[i]) == "input") {
-      filename = argv[i + 1];
-    }
+  if (vm.count("help")) {
+    std::cout << desc << std::endl;
+    return 0;
   }
 
-  float threshold = 0.1;
-  PageContainer page(the_log, &used_memory);
-  std::ifstream in(filename);
-  page.Load(in, threshold);
+  if (vm.count("log_level") &&
+        std::string("Release release RELEASE").find(
+            vm["log_level"].as<std::string>()) != std::string::npos)
+      Log::GetInstance().Setting(false);
+  else
+      Log::GetInstance().Setting(true);
+  UsedMemory used_memory;
 
-  the_log.Write(std::to_string(used_memory.used()));
+  PageContainer page{};
+  std::ifstream in(vm["source"].as<std::string>());
 
-  for (size_t i = 0; i < 5; ++i) {
-    const auto& item = page.ByIndex(i);
-    std::cout << item.name << ": " << item.score << std::endl;
-    const auto& item2 = page.ById(std::to_string(i));
-    std::cout << item2.name << ": " << item2.score << std::endl;
-  }
+  page.RawLoad(in);
+  page.DataLoad(vm["threshold"].as<int>());
 
-  page.Reload(threshold);
-  the_log.Write(std::to_string(used_memory.used()));
+  Log::GetInstance().Write("Used memory: " +
+                             std::to_string(used_memory.Used()));
+  Log::GetInstance().
+        Write("Number skips in this lap: " +
+              std::to_string(Histogram::GetInstance().GetNumSkip()));
+  Log::GetInstance().
+        Write("Average score: " +
+              std::to_string(Histogram::GetInstance().GetAvg()));
 
+  page.PrintTable();
+
+  page.DataLoad(vm["threshold"].as<int>()+3);
+  Log::GetInstance().Write("Used memory: " +
+                             std::to_string(used_memory.Used()));
+  Log::GetInstance().
+        Write("Number skips in this lap: " +
+              std::to_string(Histogram::GetInstance().GetNumSkip()));
+  Log::GetInstance().
+        Write("Average score: " +
+              std::to_string(Histogram::GetInstance().GetAvg()));
+
+  //  throw po::error("Bad syntax, check options at --help");
   return 0;
 }
