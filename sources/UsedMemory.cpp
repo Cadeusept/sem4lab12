@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <example.hpp>
-#include <iomanip>
-#include <iostream>
 #include <set>
 
 void UsedMemory::OnDataLoad(const std::vector<Item>& old_items,

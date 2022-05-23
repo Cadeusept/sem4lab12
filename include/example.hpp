@@ -117,6 +117,12 @@ class Histogram{ //observer of PageContainer
 
 
 class PageContainer { //observant
+ private:
+  UsedMemory* memory_counter_;
+  StatSender* stat_sender_;
+  std::vector<Item> data_;
+  std::vector<std::string> raw_data_;
+
  public:
   void RawLoad(std::istream& file);
 
@@ -139,12 +145,6 @@ class PageContainer { //observant
       : memory_counter_(memory_counter), stat_sender_(stat_sender){}
 
   ~PageContainer() {delete memory_counter_; delete stat_sender_;};
-
- private:
-  UsedMemory* memory_counter_;
-  StatSender* stat_sender_;
-  std::vector<Item> data_;
-  std::vector<std::string> raw_data_;
 };
 
 #endif // INCLUDE_EXAMPLE_HPP_

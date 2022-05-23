@@ -2,6 +2,10 @@
 // Created by cadeusept on 23.05.22.
 //
 
+#include <algorithm>
+#include <example.hpp>
+#include <set>
+
 void StatSender::AsyncSend(const std::vector<Item>& items,
                            std::string_view path) {
   Log::GetInstance().Write(path);
