@@ -12,15 +12,6 @@
 constexpr size_t kMinLines = 10;
 
 class Log { //singleton
- public:
-  static Log& GetInstance();
-
-  void Setting(bool level);
-
-  void Write(const std::string_view& message) const;
-
-  void WriteDebug(const std::string_view& message) const;
-
  private:
   Log(): level_(false), out_(&std::cout){}
 
@@ -29,6 +20,23 @@ class Log { //singleton
 
   bool level_ = false;
   mutable std::ostream* out_;
+ public:
+  static Log& GetInstance() {
+    static Log instance;
+    return instance;
+  };
+
+  void Setting(bool level) {
+    level_ = level;
+  };
+
+  void Write(const std::string_view& message) const {
+    *out_ << "[info] " << message << std::endl;
+  };
+
+  void WriteDebug(const std::string_view& message) const {
+    if (level_) *out_ << "[debug] " << message << std::endl;
+  };
 };
 
 struct Item {
@@ -49,7 +57,7 @@ class UsedMemory { //observer of PageContainer
   void OnRawDataLoad(const std::vector<std::string>& old_items,
                      const std::vector<std::string>& new_items);
 
-  [[nodiscard]] size_t Used() const;
+  [[nodiscard]] size_t Used() const {return used_;};
 
  private:
   size_t used_ = 0;
@@ -61,9 +69,14 @@ class UsedMemory { //observer of PageContainer
 
 class StatSender { //observer of PageContainer
  public:
-  void OnLoaded(const std::vector<Item>& new_items);
+  void OnLoaded(const std::vector<Item>& new_items) {
+    Log::GetInstance().WriteDebug("StatSender::OnDataLoad");
+    AsyncSend(new_items, "/items/loaded");
+  };
 
-  void Skip(const Item& item);
+  void Skip(const Item& item) {
+    AsyncSend({item}, "/items/skiped");
+  };
 
   virtual ~StatSender() = default;
 
@@ -79,17 +92,17 @@ class StatSender { //observer of PageContainer
 
 class Histogram{ //observer of PageContainer
  public:
-  static Histogram& GetInstance();
+  static Histogram& GetInstance() {static Histogram instance; return instance;};
 
-  [[nodiscard]] int GetNumSkip() const;
+  [[nodiscard]] int GetNumSkip() const {return num_skip;};
 
-  [[nodiscard]] float GetAvg() const;
+  [[nodiscard]] float GetAvg() const {return avg;};
 
-  void SetAvg(const float& avg_);
+  void SetAvg(const float& avg_) {avg = avg_;};
 
-  void PlusNumSkip();
+  void PlusNumSkip() {++num_skip;};
 
-  void NewLap();
+  void NewLap() {num_skip = 0;};
  private:
   Histogram() = default;
   Histogram( const Histogram&) = delete;
@@ -107,13 +120,13 @@ class PageContainer { //observant
  public:
   void RawLoad(std::istream& file);
 
-  [[nodiscard]] const Item& ByIndex(const size_t& i) const;
+  [[nodiscard]] const Item& ByIndex(const size_t& i) const {return data_[i];};
 
   [[nodiscard]] const Item& ById(const std::string& id) const;
 
-  [[nodiscard]] size_t GetRawDataSize() const;
+  [[nodiscard]] size_t GetRawDataSize() const {return raw_data_.size();};
 
-  [[nodiscard]] size_t GetDataSize() const;
+  [[nodiscard]] size_t GetDataSize() const {return data_.size();};
 
   void DataLoad(const float& threshold);
 
@@ -125,7 +138,7 @@ class PageContainer { //observant
                          StatSender* stat_sender = new StatSender())
       : memory_counter_(memory_counter), stat_sender_(stat_sender){}
 
-  ~PageContainer();
+  ~PageContainer() {delete memory_counter_; delete stat_sender_;};
 
  private:
   UsedMemory* memory_counter_;
